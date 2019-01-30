@@ -1,0 +1,2 @@
+rootProject.name = 'ccloomi-rada'
+//project(":ccloomi-core").projectDir=file("E:/workspace/eclipse-dev/ccloomi-core")
