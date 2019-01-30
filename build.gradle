@@ -4,11 +4,12 @@ def artifactId='rada'
 apply plugin: 'java'
 apply plugin: 'maven'
 
+def mvnRelease='http://localhost:8081/repository/maven-releases/'
 allprojects {
 	repositories {
 		maven{url='https://maven.aliyun.com/nexus/content/groups/public/'}
 		maven{url='http://localhost:8081/repository/alimaven-central/'}
-		maven{url="http://localhost:8081/repository/maven-releases/"}
+		maven{url="$mvnRelease"}
 		mavenCentral()
 	}
 }
@@ -45,7 +46,7 @@ dependencies {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(url: "http://10.9.9.116:8081/nexus/content/repositories/releases/") {
+            repository(url: "$mvnRelease") {
                 authentication(userName: "admin", password: "admin123")
             }
             pom.version = "$project.version"
