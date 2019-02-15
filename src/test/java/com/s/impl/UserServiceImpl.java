@@ -10,7 +10,7 @@ import com.s.UserService;
  * 邮    箱：chenios@foxmail.com
  * 日    期：2019年1月27日-上午10:34:36
  */
-@RadaService
+@RadaService(autoDelete=true)
 public class UserServiceImpl implements UserService{
 	
 	@Override
