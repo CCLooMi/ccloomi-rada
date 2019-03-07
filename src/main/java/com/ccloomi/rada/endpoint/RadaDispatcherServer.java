@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.springframework.web.context.request.async.DeferredResult;
+
 import com.ccloomi.rada.annotation.RadaService;
 import com.ccloomi.rada.handler.MQInvokeHandler;
 import com.ccloomi.rada.util.MethodUtil;
@@ -126,6 +128,7 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void onMessage(BasicProperties properties, byte[] body) {
 		try {
 			Map<String, Object>headers=properties.getHeaders();
@@ -138,7 +141,14 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 			}
 			MQInvokeHandler hander=handlerMap.get(key);
 			Object result=hander.execute(readBytesAsObjectWithCompress(body));
-			returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(result));
+			if(result instanceof DeferredResult) {
+				((DeferredResult<Object>) result).setResultHandler((r)->{
+					try {returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(r));}
+					catch (IOException e) {}
+				});
+			}else {
+				returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(result));
+			}
 		}catch (Exception e) {
 			if(!(e instanceof NullPointerException)) {
 				log.error("", e);
@@ -147,5 +157,16 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 			catch (Exception e1) {}
 		}
 	}
-
+	public static void main(String[] args) throws Exception {
+		DeferredResult<Object>dr=new DeferredResult<>(5000L);
+		dr.onCompletion(()->{
+			System.out.println("completed !\t"+dr.getResult());
+		});
+		dr.setResultHandler((o)->{
+			System.out.println("got result!\t"+dr.getResult());
+		});
+		
+		Thread.sleep(1000);
+		dr.setResult("haha");
+	}
 }

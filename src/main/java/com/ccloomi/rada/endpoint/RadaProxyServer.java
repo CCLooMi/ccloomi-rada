@@ -90,12 +90,9 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 		try {
 			handlerCache.put(msid, deferredResult);
 			groupChannel.basicPublish(exGroupName, server, bp, writeValueAsBytesWithCompress(args));
-			deferredResult.onTimeout(new Runnable() {
-				@Override
-				public void run() {
-					log.info("异步调用超时", new TaskTimeoutException());
-					deferredResult.setResult(timeoutMsg);
-				}
+			deferredResult.onTimeout(()->{
+				log.info("异步调用超时", new TaskTimeoutException());
+				deferredResult.setResult(timeoutMsg);
 			});
 		} catch (Exception e) {
 			log.error("消息发送失败", e);
