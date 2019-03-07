@@ -1,5 +1,5 @@
 group "com.ccloomi"
-version '1.0.1'
+version '1.0.2'
 def artifactId='rada'
 apply plugin: 'java'
 apply plugin: 'maven'
@@ -8,10 +8,10 @@ def mvnLocal  ='http://localhost:8081/repository/alimaven-central/'
 def mvnRelease='http://localhost:8081/repository/maven-releases/'
 allprojects {
 	repositories {
-		maven{url='https://maven.aliyun.com/nexus/content/groups/public/'}
+		//maven{url='https://maven.aliyun.com/nexus/content/groups/public/'}
 		maven{url="$mvnLocal"}
 		maven{url="$mvnRelease"}
-		mavenCentral()
+		//mavenCentral()
 	}
 }
 dependencies {
