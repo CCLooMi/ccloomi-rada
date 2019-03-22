@@ -15,22 +15,22 @@ allprojects {
 	}
 }
 dependencies {
-        def jacksonVersion		= "2.+"
-		def logbackVersion		= "1.2.+"
-		def slf4jVersion		= "1.7.+"
-		def springBootVersion	= "1.+"
-		def springVersion		= "4.+"
+        def jacksonVersion		= "2.9.8"
+		def logbackVersion		= "1.2.3"
+		def slf4jVersion		= "1.7.26"
+		def springBootVersion	= "1.5.19.RELEASE"
+		def springVersion		= "4.3.22.RELEASE"
     compile (
-    	["org.rocksdb:rocksdbjni:5.+"],
-		["org.antlr:antlr4:4.+"],
+    	["org.rocksdb:rocksdbjni:5.17.2"],
+		["org.antlr:antlr4:4.7.2"],
 		["org.javassist:javassist:3.24.1-GA"],
 		["org.aspectj:aspectjrt:1.9.1"],
 		["org.aspectj:aspectjweaver:1.9.1"],
-		["org.eclipse.jdt:ecj:3.+"],
-		["net.java.dev.jna:jna:5.+"],
-		["net.java.dev.jna:jna-platform:5.+"],
+		["org.eclipse.jdt:ecj:3.16.0"],
+		["net.java.dev.jna:jna:5.2.0"],
+		["net.java.dev.jna:jna-platform:5.2.0"],
 		["com.rabbitmq:amqp-client:5.5.3"],
-		["com.google.guava:guava:27.+"],
+		["com.google.guava:guava:27.0.1-jre"],
 		["ch.qos.logback:logback-access:$logbackVersion"],
 		["ch.qos.logback:logback-classic:$logbackVersion"],
 		["ch.qos.logback:logback-core:$logbackVersion"],
@@ -40,9 +40,9 @@ dependencies {
 		["com.fasterxml.jackson.core:jackson-core:$jacksonVersion"],
 		["com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"],
 		["com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"],
-		["org.xerial.snappy:snappy-java:1.+"],
+		["org.xerial.snappy:snappy-java:1.1.7.2"],
     fileTree(dir: 'libs', include: '*.jar'))
-    testCompile(["junit:junit:4.+"],["org.mockito:mockito-core:2.+"])
+    testCompile(["junit:junit:4.+"],["org.mockito:mockito-core:2.24.5"])
 }
 //打包源代码
 task sourcesJar(type: Jar, dependsOn: classes) {
