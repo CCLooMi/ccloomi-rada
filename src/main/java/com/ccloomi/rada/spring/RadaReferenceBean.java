@@ -43,7 +43,7 @@ public class RadaReferenceBean<T> {
 		String server=null;
 		Package pkg=referenceClass.getPackage();
 		if(pkg!=null) {
-			server=Integer.toString(pkg.getName().hashCode(),36);
+			server=Integer.toHexString(pkg.getName().hashCode());
 		}else {
 			server=Integer.toHexString("default".hashCode());
 		}
