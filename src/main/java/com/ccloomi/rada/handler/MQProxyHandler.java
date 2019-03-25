@@ -20,34 +20,66 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 	}
 	@Override
 	public boolean invoke_boolean(String server, long timeout, boolean sync,int method, Object[] args) {
-		return (boolean)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return false;
+		}
+		return (boolean)o;
 	}
 	@Override
 	public byte invoke_byte(String server, long timeout, boolean sync,int method, Object[] args) {
-		return (byte)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return 0;
+		}
+		return (byte)o;
 	}
 	@Override
 	public char invoke_char(String server, long timeout,boolean sync, int method, Object[] args) {
-		return (char)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return 0;
+		}
+		return (char)o;
 	}
 	@Override
 	public double invoke_double(String server, long timeout, boolean sync,int method, Object[] args) {
-		return (double)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return 0;
+		}
+		return (double)o;
 	}
 	@Override
 	public float invoke_float(String server, long timeout,boolean sync, int method, Object[] args) {
-		return (float)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return 0;
+		}
+		return (float)o;
 	}
 	@Override
 	public int invoke_int(String server, long timeout, boolean sync,int method, Object[] args) {
-		return (int)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o =proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return 0;
+		}
+		return (int)o;
 	}
 	@Override
 	public long invoke_long(String server, long timeout,boolean sync, int method, Object[] args) {
-		return (long)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o =proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return 0;
+		}
+		return (long)o;
 	}
 	@Override
 	public short invoke_short(String server, long timeout, boolean sync,int method, Object[] args) {
-		return (short)proxyServer.sendMessage(server,timeout,sync,method,args);
+		Object o = proxyServer.sendMessage(server,timeout,sync,method,args);
+		if(o==null) {
+			return -1;
+		}
+		return (short)o;
 	}
 }
