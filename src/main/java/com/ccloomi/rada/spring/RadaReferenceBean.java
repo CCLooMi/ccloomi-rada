@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +62,7 @@ public class RadaReferenceBean<T> {
 		//不同的配置需要注入不同的代理类
 		String newClassName=genericProxyClassName(reference,referenceClass);
 		Class<?>nc=null;
-		try {nc=Class.forName(newClassName);}catch (Exception e) {}
+		try {nc=proxyClassLoad.ldClass(newClassName);}catch (Exception e) {}
 		if(nc==null) {
 			try {
 				ClassPool cp=ClassPool.getDefault();
@@ -142,19 +144,23 @@ public class RadaReferenceBean<T> {
 	}
 	
 	private static String genericProxyClassName(RadaReference reference, Class<?> referenceClass) {
-		return referenceClass.getName()+'$'+Integer.toHexString(genericReferenceBeanKey(reference, referenceClass));
+		return genericReferenceBeanName(reference, referenceClass);
 	}
-	private static Integer genericReferenceBeanKey(RadaReference reference, Class<?> referenceClass) {
+	private static String genericReferenceBeanName(RadaReference reference, Class<?> referenceClass) {
 		StringBuilder key=new StringBuilder();
-		key.append(referenceClass.getName().hashCode())
-		.append(reference.toString().hashCode());
+		key.append(Integer.toHexString(referenceClass.getName().hashCode()))
+		.append(Integer.toHexString(reference.toString().hashCode()));
 		reference = referenceClass.getAnnotation(RadaReference.class);
 		if(reference!=null) {
-			key.append(reference.toString().hashCode());
+			key.append(Integer.toHexString(reference.toString().hashCode()));
 		}
-		return key.toString().hashCode();
+		String k=Integer.toHexString(key.toString().hashCode());
+		key.delete(0, key.length());
+		key.append("CCProxy$").append(k);
+		return key.toString();
 	}
 	private static class ProxyClassLoad extends ClassLoader{
+		private static Map<String, Class<?>> loadedClass=new ConcurrentHashMap<>();
 		private Method defineClass;
 		public ProxyClassLoad() {
 			try {
@@ -167,8 +173,15 @@ public class RadaReferenceBean<T> {
 		}
 		@SuppressWarnings("unchecked")
 		public <T>Class<T> loadClass(byte[]b,String className,ClassLoader cl) throws Exception{
-			return (Class<T>) defineClass
+			Class<T>c=(Class<T>) defineClass
 					.invoke(cl, className, b, 0, b.length);
+			loadedClass.put(className, c);
+			return c;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public <T>Class<T> ldClass(String className){
+			return (Class<T>) loadedClass.get(className);
 		}
 	}
 	/**设置 reference*/
