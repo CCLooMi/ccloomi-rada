@@ -157,16 +157,4 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 			catch (Exception e1) {}
 		}
 	}
-	public static void main(String[] args) throws Exception {
-		DeferredResult<Object>dr=new DeferredResult<>(5000L);
-		dr.onCompletion(()->{
-			System.out.println("completed !\t"+dr.getResult());
-		});
-		dr.setResultHandler((o)->{
-			System.out.println("got result!\t"+dr.getResult());
-		});
-		
-		Thread.sleep(1000);
-		dr.setResult("haha");
-	}
 }

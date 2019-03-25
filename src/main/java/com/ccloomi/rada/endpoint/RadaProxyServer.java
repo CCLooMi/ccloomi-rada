@@ -78,7 +78,7 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 	}
 	public Object sendMessage(String server,long timeout,boolean sync,int method,Object[] args){
 		DeferredResult<Object> deferredResult=new DeferredResult<>(timeout);
-		String msid=randomId();
+		String msid=Integer.toHexString(deferredResult.hashCode());
 		Map<String, Object>headers=new HashMap<>(2);
 		headers.put("method", method);
 		BasicProperties bp=new BasicProperties()

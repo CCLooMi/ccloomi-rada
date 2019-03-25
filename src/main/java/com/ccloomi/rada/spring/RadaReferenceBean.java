@@ -40,10 +40,12 @@ public class RadaReferenceBean<T> {
 	private ApplicationContext applicationContext;
 	@SuppressWarnings("unchecked")
 	public T getObject() throws Exception {
-		String server=Integer.toHexString("default".hashCode());
+		String server=null;
 		Package pkg=referenceClass.getPackage();
 		if(pkg!=null) {
-			server=Integer.toHexString(pkg.getName().hashCode());
+			server=Integer.toString(pkg.getName().hashCode(),36);
+		}else {
+			server=Integer.toHexString("default".hashCode());
 		}
 		long timeout=reference.timeout();
 		RadaReference rr=referenceClass.getAnnotation(RadaReference.class);
