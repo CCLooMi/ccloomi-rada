@@ -9,6 +9,7 @@ package com.ccloomi.rada.handler;
  */
 public interface ProxyInvoationHandler {
 	public Object invoke(String server,long timeout,boolean sync,int method,Object[]args);
+	public void invoke_void(String server,long timeout,boolean sync,int method,Object[]args);
 	public boolean invoke_boolean(String server,long timeout,boolean sync,int method,Object[]args);
 	public byte invoke_byte(String server,long timeout,boolean sync,int method,Object[]args);
 	public char invoke_char(String server,long timeout,boolean sync,int method,Object[]args);

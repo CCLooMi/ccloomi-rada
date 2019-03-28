@@ -10,4 +10,5 @@ package com.s;
 public interface UserService extends PeopleService{
 	public Object hello(String name);
 	public int amount(int age);
+	public void notify(String msg);
 }

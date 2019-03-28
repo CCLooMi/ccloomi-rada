@@ -1,5 +1,5 @@
 group "com.ccloomi"
-version '1.0.7'
+version '1.0.8'
 def artifactId='rada'
 apply plugin: 'java'
 apply plugin: 'maven'

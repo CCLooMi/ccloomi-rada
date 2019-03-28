@@ -28,4 +28,9 @@ public class UserServiceImpl implements UserService{
 		return "UserServerType";
 	}
 
+	@Override
+	public void notify(String msg) {
+		System.out.println("I got the msg is : "+msg);
+	}
+
 }

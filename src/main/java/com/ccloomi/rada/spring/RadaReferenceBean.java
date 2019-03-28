@@ -99,7 +99,7 @@ public class RadaReferenceBean<T> {
 									returnType.getName(),
 									server,timeout,method));
 						}else if(returnType==CtClass.voidType) {
-							m.setBody(String.format("{handler.invoke(\"%s\",%dl,false,%d,$args);}",
+							m.setBody(String.format("{handler.invoke_void(\"%s\",%dl,false,%d,$args);}",
 									server,timeout,method));
 						}else {
 							boolean sync=true;

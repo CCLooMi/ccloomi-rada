@@ -53,4 +53,8 @@ public class UserServiceTest {
 		System.out.println(uss.amount(16));
 		System.out.println(uss.amount(18));
 	}
+	@Test
+	public void voidTest() {
+		us.notify("Hello world!");
+	}
 }

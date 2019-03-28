@@ -76,6 +76,17 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 			deferredResult.setResult(result);
 		}
 	}
+	public void sendMessageWithNoReturn(String server,long timeout,boolean sync,int method,Object[] args){
+		Map<String, Object>headers=new HashMap<>(2);
+		headers.put("method", method);
+		try {
+			groupChannel.basicPublish(exGroupName, server,
+					new BasicProperties().builder().headers(headers).build(),
+					writeValueAsBytesWithCompress(args));
+		}catch (Exception e) {
+			log.error("消息发送失败", e);
+		}
+	}
 	public Object sendMessage(String server,long timeout,boolean sync,int method,Object[] args){
 		DeferredResult<Object> deferredResult=new DeferredResult<>(timeout);
 		String msid=Integer.toHexString(deferredResult.hashCode());

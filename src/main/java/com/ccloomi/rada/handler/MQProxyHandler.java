@@ -19,6 +19,10 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		return proxyServer.sendMessage(server,timeout,sync,method,args);
 	}
 	@Override
+	public void invoke_void(String server,long timeout,boolean sync,int method, Object[] args) {
+		proxyServer.sendMessageWithNoReturn(server,timeout,sync,method,args);
+	}
+	@Override
 	public boolean invoke_boolean(String server, long timeout, boolean sync,int method, Object[] args) {
 		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
