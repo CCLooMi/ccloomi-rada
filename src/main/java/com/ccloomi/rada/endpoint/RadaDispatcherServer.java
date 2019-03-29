@@ -41,7 +41,7 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 				String methodName=MethodUtil.genericMethodLongName(methods[i]);
 				Integer key=methodName.hashCode();
 				handlerMap.put(key, new MQInvokeHandler(methods[i],obj));
-				log.info("register method[{}] to\t[{}]", methodName,key);
+				log.info("mapping [{}] to [{}] ",key,methodName);
 			}
 		}
 	}

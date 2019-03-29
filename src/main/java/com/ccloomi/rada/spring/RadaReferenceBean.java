@@ -84,7 +84,7 @@ public class RadaReferenceBean<T> {
 					if(!MethodUtil.isObjMethod(methodName)) {
 						CtClass returnType=ms[i].getReturnType();
 						int method=methodName.hashCode();
-						log.info("register method [{}] to\t{}",methodName,method);
+						log.info("mapping [{}] to [{}]",method,methodName);
 						CtMethod m=new CtMethod(returnType, ms[i].getName(), ms[i].getParameterTypes(), newClass);
 						if(returnType==CtClass.booleanType||
 								returnType==CtClass.byteType||
