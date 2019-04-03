@@ -19,6 +19,7 @@ import com.ccloomi.rada.handler.MQProxyHandler;
 import com.ccloomi.rada.handler.ProxyInvoationHandler;
 import com.ccloomi.rada.util.MethodUtil;
 
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -66,6 +67,8 @@ public class RadaReferenceBean<T> {
 		if(nc==null) {
 			try {
 				ClassPool cp=ClassPool.getDefault();
+				//解决项目打成一个jar包时javassist.NotFoundException:xxx...错误 
+				cp.insertClassPath(new ClassClassPath(ProxyInvoationHandler.class));
 				CtClass newClass=cp.makeClass(newClassName);
 				//生成Field
 				CtClass fieldType=cp.getCtClass(ProxyInvoationHandler.class.getName());
