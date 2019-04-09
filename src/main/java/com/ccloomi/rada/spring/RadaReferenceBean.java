@@ -106,13 +106,19 @@ public class RadaReferenceBean<T> {
 									server,timeout,method));
 						}else {
 							boolean sync=true;
-							Class<?>rtype=Class.forName(returnType.getName());
-							if(rtype==Object.class||rtype==DeferredResult.class) {
-								sync=false;
+							if(returnType.isArray()) {
+								m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,%d,$args);}",
+										returnType.getName(),
+										server,timeout,sync,method));
+							}else {
+								Class<?>rtype=Class.forName(returnType.getName());
+								if(rtype==Object.class||rtype==DeferredResult.class) {
+									sync=false;
+								}
+								m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,%d,$args);}",
+										returnType.getName(),
+										server,timeout,sync,method));
 							}
-							m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,%d,$args);}",
-									returnType.getName(),
-									server,timeout,sync,method));
 						}
 						newClass.addMethod(m);
 					}
