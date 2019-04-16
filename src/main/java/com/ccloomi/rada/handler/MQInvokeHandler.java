@@ -1,12 +1,6 @@
 package com.ccloomi.rada.handler;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
-//jdk 10
-//import jdk.internal.reflect.MethodAccessor;
-//jdk 8
-import sun.reflect.MethodAccessor;
 
 /**© 2015-2017 CCLooMi.Inc Copyright
  * 类    名：MDHandler
@@ -18,21 +12,12 @@ import sun.reflect.MethodAccessor;
 public class MQInvokeHandler {
 	private Method method;
 	private Object target;
-	private MethodAccessor methodAccessor;
 	public MQInvokeHandler(Method method,Object target) {
 		this.setMethod(method);
 		this.setTarget(target);
 	}
-	@SuppressWarnings("unchecked")
-	public <T>T execute(Object[]args){
-		try {
-			return (T)methodAccessor.invoke(target, args);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
-		return null;
+	public Object execute(Object[]args) throws Exception{
+		return method.invoke(target, args);
 	}
 	/**获取 method*/
 	public Method getMethod() {
@@ -41,18 +26,7 @@ public class MQInvokeHandler {
 	/**设置 method*/
 	public void setMethod(Method method) {
 		this.method = method;
-		try{
-			Method getMethodAccessor=Method.class.getDeclaredMethod("getMethodAccessor");
-			getMethodAccessor.setAccessible(true);
-			Method acquireMethodAccessor=Method.class.getDeclaredMethod("acquireMethodAccessor");
-			acquireMethodAccessor.setAccessible(true);
-			this.methodAccessor=(MethodAccessor)getMethodAccessor.invoke(method);
-			if(this.methodAccessor==null){
-				this.methodAccessor=(MethodAccessor) acquireMethodAccessor.invoke(method);
-			}
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
+		this.method.setAccessible(true);
 	}
 	/**获取 target*/
 	public Object getTarget() {

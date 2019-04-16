@@ -142,7 +142,9 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 			MQInvokeHandler hander=handlerMap.get(key);
 			if(properties.getReplyTo()!=null) {
 				Object result=hander.execute(readBytesAsObjectWithCompress(body));
-				if(result instanceof DeferredResult) {
+				if(result==null) {
+					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties,byteNull);
+				}else if(result instanceof DeferredResult) {
 					((DeferredResult<Object>) result).setResultHandler((r)->{
 						try {returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(r));}
 						catch (IOException e) {}
@@ -151,14 +153,17 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(result));
 				}
 			}else {
-				hander.execute(readBytesAsObjectWithCompress(body));
+				//不需要返回结果
+				try {
+					hander.execute(readBytesAsObjectWithCompress(body));
+				}catch (Exception e) {
+					log.error("", e);
+				}
 			}
 		}catch (Exception e) {
-			if(!(e instanceof NullPointerException)) {
-				log.error("", e);
-			}
 			try {returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties,byteNull);}
 			catch (Exception e1) {}
+			log.error("", e);
 		}
 	}
 }
