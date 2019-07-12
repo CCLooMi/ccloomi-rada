@@ -141,6 +141,11 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 			}
 			MQInvokeHandler hander=handlerMap.get(key);
 			if(properties.getReplyTo()!=null) {
+				if(hander==null) {
+					log.error("Target method[{}] not exist,Check API version consistency!",key);
+					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties,byteNull);
+					return;
+				}
 				Object result=hander.execute(readBytesAsObjectWithCompress(body));
 				if(result==null) {
 					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties,byteNull);
