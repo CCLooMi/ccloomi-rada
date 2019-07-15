@@ -48,7 +48,7 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 			returnChannel=connection.createChannel();
 			returnChannel.exchangeDeclare(exReturnName, "direct", false, false, null);
 		}catch (Exception e) {
-			e.printStackTrace();
+			log.error("Service initialization failed, please check whether the service configuration is correct or the network is normal or the guard wall port configuration");
 		}
 	}
 	public abstract void startup();

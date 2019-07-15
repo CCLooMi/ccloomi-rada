@@ -65,7 +65,7 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 				}
 			});
 		}catch (Exception e) {
-			log.error("服务启动失败", e);
+			log.error("Service startup failure", e);
 		}
 	}
 	@Override
@@ -84,7 +84,11 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 					new BasicProperties().builder().headers(headers).build(),
 					writeValueAsBytesWithCompress(args));
 		}catch (Exception e) {
-			log.error("消息发送失败", e);
+			if(groupChannel==null) {
+				log.error("Message sending failed, please check if the service is started!", e);
+			}else {
+				log.error("Message sending failed", e);
+			}
 		}
 	}
 	public Object sendMessage(String server,long timeout,boolean sync,int method,Object[] args){
@@ -102,11 +106,15 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 			handlerCache.put(msid, deferredResult);
 			groupChannel.basicPublish(exGroupName, server, bp, writeValueAsBytesWithCompress(args));
 			deferredResult.onTimeout(()->{
-				log.info("异步调用超时", new TaskTimeoutException());
+				log.info("Asynchronous call timeout (is the micro service started?)", new TaskTimeoutException());
 				deferredResult.setResult(timeoutMsg);
 			});
 		} catch (Exception e) {
-			log.error("消息发送失败", e);
+			if(groupChannel==null) {
+				log.error("Message sending failed, please check if the service is started!", e);
+			}else {
+				log.error("Message sending failed", e);
+			}
 			deferredResult.setResult(serverErrorMsg);
 		}
 		if(!sync) {
@@ -125,7 +133,7 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 					return null;
 				}
 			}
-			log.info("调用超时", new TaskTimeoutException());
+			log.info("Synchronous invocation timeout (is the micro service started?)", new TaskTimeoutException());
 			return null;
 		}
 	}

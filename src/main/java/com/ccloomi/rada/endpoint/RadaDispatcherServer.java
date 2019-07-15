@@ -123,7 +123,7 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 				});
 			}
 		}catch (Exception e) {
-			log.error("服务启动失败", e);
+			log.error("Service startup failure", e);
 		}
 	}
 
