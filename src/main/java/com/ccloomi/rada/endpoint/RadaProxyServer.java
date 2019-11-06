@@ -47,25 +47,35 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 	@Override
 	public void startup() {
 		init();
-		try{
-			String queueName=new StringBuilder()
-			.append("QUEUE_RETURN_")
-			.append(group.toUpperCase())
-			.append('_')
-			.append(appName.toUpperCase())
-			.append('_')
-			.append(routingKey.toUpperCase())
-			.toString();
-			DeclareOk ok=returnChannel.queueDeclare(queueName, false, false, true, null);
-			returnChannel.queueBind(ok.getQueue(), exReturnName, routingKey);
-			returnChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(returnChannel){
-				@Override
-				public void handleDelivery(String consumerTag, Envelope envelope,AMQP.BasicProperties properties, byte[] body)throws IOException {
-					onMessage(properties, body);
+		while(true) {
+			try{
+				String queueName=new StringBuilder()
+				.append("QUEUE_RETURN_")
+				.append(group.toUpperCase())
+				.append('_')
+				.append(appName.toUpperCase())
+				.append('_')
+				.append(routingKey.toUpperCase())
+				.toString();
+				DeclareOk ok=returnChannel.queueDeclare(queueName, false, false, true, null);
+				returnChannel.queueBind(ok.getQueue(), exReturnName, routingKey);
+				returnChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(returnChannel){
+					@Override
+					public void handleDelivery(String consumerTag, Envelope envelope,AMQP.BasicProperties properties, byte[] body)throws IOException {
+						onMessage(properties, body);
+					}
+				});
+				break;
+			}catch (Exception e) {
+				log.error("Service startup failure", e);
+				try {
+					Thread.sleep(1000);
+					log.info("Try restart service...");
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+					break;
 				}
-			});
-		}catch (Exception e) {
-			log.error("Service startup failure", e);
+			}
 		}
 	}
 	@Override

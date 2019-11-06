@@ -104,26 +104,36 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 			findPkg(entry.getValue(), m);
 		}
 		init();
-		try{
-			for(Entry<String, RadaService>e:m.entrySet()) {
-				RadaService rs=e.getValue();
-				String queueName=new StringBuilder()
-						.append("QUEUE_SERVER_")
-						.append(group.toUpperCase())
-						.append('_')
-						.append(e.getKey().toUpperCase())
-						.toString();
-				DeclareOk ok=groupChannel.queueDeclare(queueName, rs.durable(), rs.exclusive(), rs.autoDelete(), generateArguments(rs));
-				groupChannel.queueBind(ok.getQueue(), exGroupName, Integer.toHexString(e.getKey().hashCode()));
-				groupChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(groupChannel){
-					@Override
-					public void handleDelivery(String consumerTag, Envelope envelope,AMQP.BasicProperties properties, byte[] body)throws IOException {
-						onMessage(properties, body);
-					}
-				});
+		while(true) {
+			try{
+				for(Entry<String, RadaService>e:m.entrySet()) {
+					RadaService rs=e.getValue();
+					String queueName=new StringBuilder()
+							.append("QUEUE_SERVER_")
+							.append(group.toUpperCase())
+							.append('_')
+							.append(e.getKey().toUpperCase())
+							.toString();
+					DeclareOk ok=groupChannel.queueDeclare(queueName, rs.durable(), rs.exclusive(), rs.autoDelete(), generateArguments(rs));
+					groupChannel.queueBind(ok.getQueue(), exGroupName, Integer.toHexString(e.getKey().hashCode()));
+					groupChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(groupChannel){
+						@Override
+						public void handleDelivery(String consumerTag, Envelope envelope,AMQP.BasicProperties properties, byte[] body)throws IOException {
+							onMessage(properties, body);
+						}
+					});
+				}
+				break;
+			}catch (Exception e) {
+				log.error("Service startup failure", e);
+				try {
+					Thread.sleep(1000);
+					log.info("Try restart service...");
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+					break;
+				}
 			}
-		}catch (Exception e) {
-			log.error("Service startup failure", e);
 		}
 	}
 

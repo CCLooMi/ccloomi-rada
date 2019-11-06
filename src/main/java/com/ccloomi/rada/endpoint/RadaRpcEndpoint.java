@@ -40,15 +40,25 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 				.append("EX_RETURN_")
 				.append(group.toUpperCase())
 				.toString();
-		try{
-			Connection connection=connectionFactory.newConnection();
-			groupChannel=connection.createChannel();
-			groupChannel.exchangeDeclare(exGroupName, "direct", false, false, null);
-			
-			returnChannel=connection.createChannel();
-			returnChannel.exchangeDeclare(exReturnName, "direct", false, false, null);
-		}catch (Exception e) {
-			log.error("Service initialization failed, please check whether the service configuration is correct or the network is normal or the guard wall port configuration");
+		while(true) {
+			try{
+				Connection connection=connectionFactory.newConnection();
+				groupChannel=connection.createChannel();
+				groupChannel.exchangeDeclare(exGroupName, "direct", false, false, null);
+				
+				returnChannel=connection.createChannel();
+				returnChannel.exchangeDeclare(exReturnName, "direct", false, false, null);
+				break;
+			}catch (Exception e) {
+				log.error("Service initialization failed, please check whether the service configuration is correct or the network is normal or the guard wall port configuration");
+				try {
+					Thread.sleep(1000);
+					log.info("Try reinit service...");
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+					break;
+				}
+			}
 		}
 	}
 	public abstract void startup();
