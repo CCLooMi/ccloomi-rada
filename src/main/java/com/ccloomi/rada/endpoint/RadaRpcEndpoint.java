@@ -43,6 +43,18 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 		while(true) {
 			try{
 				Connection connection=connectionFactory.newConnection();
+//				connection.addShutdownListener(e->{
+//					
+//				});
+//				((Recoverable)connection).addRecoveryListener(new RecoveryListener() {
+//					@Override
+//					public void handleRecoveryStarted(Recoverable recoverable) {
+//					}
+//					@Override
+//					public void handleRecovery(Recoverable recoverable) {
+//						
+//					}
+//				});
 				groupChannel=connection.createChannel();
 				groupChannel.exchangeDeclare(exGroupName, "direct", false, false, null);
 				
