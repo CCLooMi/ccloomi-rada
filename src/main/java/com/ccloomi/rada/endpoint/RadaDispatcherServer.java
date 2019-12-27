@@ -114,7 +114,16 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 							.append('_')
 							.append(e.getKey().toUpperCase())
 							.toString();
-					DeclareOk ok=groupChannel.queueDeclare(queueName, rs.durable(), rs.exclusive(), rs.autoDelete(), generateArguments(rs));
+					DeclareOk ok=null;
+					while(true) {
+						try {
+							ok=groupChannel.queueDeclare(queueName, rs.durable(), rs.exclusive(), rs.autoDelete(), generateArguments(rs));
+							break;
+						}catch (Exception ex) {
+							log.info("Queue[{}] declare faild,to redeclare we need delete it first",queueName);
+							groupChannel.queueDelete(queueName);
+						}
+					}
 					groupChannel.queueBind(ok.getQueue(), exGroupName, Integer.toHexString(e.getKey().hashCode()));
 					groupChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(groupChannel){
 						@Override

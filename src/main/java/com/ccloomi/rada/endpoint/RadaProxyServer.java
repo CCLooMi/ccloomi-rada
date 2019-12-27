@@ -57,7 +57,17 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 				.append('_')
 				.append(routingKey.toUpperCase())
 				.toString();
-				DeclareOk ok=returnChannel.queueDeclare(queueName, false, false, true, null);
+				
+				DeclareOk ok=null;
+				while(true) {
+					try {
+						ok=returnChannel.queueDeclare(queueName, false, false, true, null);
+						break;
+					}catch (Exception e) {
+						log.info("Queue[{}] declare faild,to redeclare we need delete it first",queueName);
+						returnChannel.queueDelete(queueName);
+					}
+				}
 				returnChannel.queueBind(ok.getQueue(), exReturnName, routingKey);
 				returnChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(returnChannel){
 					@Override

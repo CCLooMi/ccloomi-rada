@@ -43,6 +43,7 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 		while(true) {
 			try{
 				Connection connection=connectionFactory.newConnection();
+				//手动修复连接
 //				connection.addShutdownListener(e->{
 //					
 //				});
@@ -56,10 +57,26 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 //					}
 //				});
 				groupChannel=connection.createChannel();
-				groupChannel.exchangeDeclare(exGroupName, "direct", false, false, null);
+				while(true) {
+					try {
+						groupChannel.exchangeDeclare(exGroupName, "direct", false, false, null);
+						break;
+					}catch (Exception e) {
+						log.info("exchange[{}] declare faild,to redeclare we need delete it first",exGroupName);
+						groupChannel.exchangeDelete(exGroupName);
+					}
+				}
 				
 				returnChannel=connection.createChannel();
-				returnChannel.exchangeDeclare(exReturnName, "direct", false, false, null);
+				while(true) {
+					try {
+						returnChannel.exchangeDeclare(exReturnName, "direct", false, false, null);
+						break;
+					}catch (Exception e) {
+						log.info("exchange[{}] declare faild,to redeclare we need delete it first",exReturnName);
+						returnChannel.exchangeDelete(exReturnName);
+					}
+				}
 				break;
 			}catch (Exception e) {
 				log.error("Service initialization failed, please check whether the service configuration is correct or the network is normal or the guard wall port configuration");
