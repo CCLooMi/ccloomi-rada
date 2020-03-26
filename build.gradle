@@ -18,8 +18,8 @@ dependencies {
         def jacksonVersion		= "2.9.8"
 		def logbackVersion		= "1.2.3"
 		def slf4jVersion		= "1.7.26"
-		def springBootVersion	= "1.5.19.RELEASE"
-		def springVersion		= "4.3.22.RELEASE"
+		def springBootVersion	= "2.2.5.RELEASE"
+		def springVersion		= "5.2.4.RELEASE"
     compile (
     	["org.rocksdb:rocksdbjni:5.17.2"],
 		["org.antlr:antlr4:4.7.2"],
