@@ -11,6 +11,8 @@ import org.springframework.context.ApplicationContextAware;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.Recoverable;
+import com.rabbitmq.client.RecoveryListener;
 
 
 /**© 2015-2017 CCLooMi.Inc Copyright
@@ -43,27 +45,37 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 		while(true) {
 			try{
 				Connection connection=connectionFactory.newConnection();
-				//手动修复连接
-//				connection.addShutdownListener(e->{
-//					
-//				});
-//				((Recoverable)connection).addRecoveryListener(new RecoveryListener() {
-//					@Override
-//					public void handleRecoveryStarted(Recoverable recoverable) {
-//					}
-//					@Override
-//					public void handleRecovery(Recoverable recoverable) {
-//						
-//					}
-//				});
+				connection.addShutdownListener(e->log.warn("连接中断，等待重连..."));
+				((Recoverable)connection).addRecoveryListener(new RecoveryListener() {
+					@Override
+					public void handleRecoveryStarted(Recoverable recoverable) {
+						log.info("开始重新连接...");
+					}
+					@Override
+					public void handleRecovery(Recoverable recoverable) {
+						log.info("重新连接成功^_^");
+					}
+				});
 				groupChannel=connection.createChannel();
 				while(true) {
 					try {
 						groupChannel.exchangeDeclare(exGroupName, "direct", false, false, null);
 						break;
 					}catch (Exception e) {
-						log.info("exchange[{}] declare faild,to redeclare we need delete it first",exGroupName);
-						groupChannel.exchangeDelete(exGroupName);
+						try {
+							if(groupChannel.isOpen()) {
+								log.info("Exchange[{}] declare failed,to redeclare we need delete it first",exGroupName);
+								groupChannel.exchangeDelete(exGroupName);
+							}
+						}catch (Exception exx) {
+							if(groupChannel.isOpen()) {
+								log.warn("Exchange[{}] delete failed cause:[{}]",
+										exGroupName,exx.getMessage());
+							}else {
+								log.info("Waiting group channel recovery");
+							}
+							Thread.sleep(1000);
+						}
 					}
 				}
 				
@@ -73,8 +85,20 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 						returnChannel.exchangeDeclare(exReturnName, "direct", false, false, null);
 						break;
 					}catch (Exception e) {
-						log.info("exchange[{}] declare faild,to redeclare we need delete it first",exReturnName);
-						returnChannel.exchangeDelete(exReturnName);
+						try {
+							if(returnChannel.isOpen()) {
+								log.info("Exchange[{}] declare failed,to redeclare we need delete it first",exReturnName);
+								returnChannel.exchangeDelete(exReturnName);
+							}
+						}catch (Exception exx) {
+							if(returnChannel.isOpen()) {
+								log.warn("Exchange[{}] delete failed cause:[{}]",
+										exReturnName,exx.getMessage());
+							}else {
+								log.info("Waiting return channel recovery");
+							}
+							Thread.sleep(1000);
+						}
 					}
 				}
 				break;

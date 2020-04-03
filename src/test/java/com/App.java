@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
@@ -41,7 +42,7 @@ public class App {
 			fin.close();
 			SpringApplication app=new SpringApplication(getAppClass());
 			app.setDefaultProperties(properties);
-			app.setWebEnvironment(true);
+			app.setWebApplicationType(WebApplicationType.NONE);
 			app.run(args);
 		}catch (Exception e) {
 			e.printStackTrace();

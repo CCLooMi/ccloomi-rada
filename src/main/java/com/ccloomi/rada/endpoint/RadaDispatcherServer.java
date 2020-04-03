@@ -120,8 +120,20 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 							ok=groupChannel.queueDeclare(queueName, rs.durable(), rs.exclusive(), rs.autoDelete(), generateArguments(rs));
 							break;
 						}catch (Exception ex) {
-							log.info("Queue[{}] declare faild,to redeclare we need delete it first",queueName);
-							groupChannel.queueDelete(queueName);
+							try {
+								if(groupChannel.isOpen()) {
+									log.info("Queue[{}] declare failed,to redeclare we need delete it first",queueName);
+									groupChannel.queueDelete(queueName);
+								}
+							}catch (Exception exx) {
+								if(groupChannel.isOpen()) {
+									log.warn("Queue[{}] delete failed cause:[{}]",
+											queueName,exx.getMessage());
+								}else {
+									log.info("Waiting group channel recovery");
+								}
+								Thread.sleep(1000);
+							}
 						}
 					}
 					groupChannel.queueBind(ok.getQueue(), exGroupName, Integer.toHexString(e.getKey().hashCode()));

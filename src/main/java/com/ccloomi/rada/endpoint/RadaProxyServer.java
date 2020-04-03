@@ -64,8 +64,20 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 						ok=returnChannel.queueDeclare(queueName, false, false, true, null);
 						break;
 					}catch (Exception e) {
-						log.info("Queue[{}] declare faild,to redeclare we need delete it first",queueName);
-						returnChannel.queueDelete(queueName);
+						try{
+							if(returnChannel.isOpen()) {
+								log.info("Queue[{}] declare failed,to redeclare we need delete it first",queueName);
+								returnChannel.queueDelete(queueName);
+							}
+						}catch (Exception exx) {
+							if(returnChannel.isOpen()) {
+								log.warn("Queue[{}] delete failed cause:[{}]",
+										queueName,exx.getMessage());
+							}else {
+								log.info("Waiting return channel recovery");
+							}
+							Thread.sleep(1000);
+						}
 					}
 				}
 				returnChannel.queueBind(ok.getQueue(), exReturnName, routingKey);
