@@ -35,12 +35,12 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 	protected Channel returnChannel;
 	protected void init(){
 		this.exGroupName=new StringBuilder()
-				.append("EX_GROUP_")
-				.append(group.toUpperCase())
+				.append("S-")
+				.append(group)
 				.toString();
 		this.exReturnName=new StringBuilder()
-				.append("EX_RETURN_")
-				.append(group.toUpperCase())
+				.append("R-")
+				.append(group)
 				.toString();
 		while(true) {
 			try{

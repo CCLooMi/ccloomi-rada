@@ -1,8 +1,5 @@
 package com.ccloomi.rada.endpoint;
 
-import static com.ccloomi.rada.util.BytesUtil.readBytesAsObjectWithCompress;
-import static com.ccloomi.rada.util.BytesUtil.writeValueAsBytesWithCompress;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -14,6 +11,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import com.ccloomi.rada.annotation.RadaService;
 import com.ccloomi.rada.handler.MQInvokeHandler;
 import com.ccloomi.rada.util.MethodUtil;
+import com.ccloomi.rada.util.digest.DigestUtils;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.AMQP.Queue.DeclareOk;
@@ -29,7 +27,7 @@ import com.rabbitmq.client.Envelope;
  */
 public class RadaDispatcherServer extends RadaRpcEndpoint{
 	
-	private Map<Integer, MQInvokeHandler>handlerMap;
+	private Map<String, MQInvokeHandler>handlerMap;
 	public RadaDispatcherServer() {
 		handlerMap=new HashMap<>();
 	}
@@ -39,7 +37,7 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 		for(int i=0;i<methods.length;i++){
 			if((methods[i].getModifiers()&1)==1) {
 				String methodName=MethodUtil.genericMethodLongName(methods[i]);
-				Integer key=methodName.hashCode();
+				String key=DigestUtils.MD5Hex(methodName);
 				handlerMap.put(key, new MQInvokeHandler(methods[i],obj));
 				log.info("mapping [{}] to [{}] ",key,methodName);
 			}
@@ -109,10 +107,10 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 				for(Entry<String, RadaService>e:m.entrySet()) {
 					RadaService rs=e.getValue();
 					String queueName=new StringBuilder()
-							.append("QUEUE_SERVER_")
-							.append(group.toUpperCase())
-							.append('_')
-							.append(e.getKey().toUpperCase())
+							.append("S-")
+							.append(group)
+							.append('-')
+							.append(e.getKey())
 							.toString();
 					DeclareOk ok=null;
 					while(true) {
@@ -136,7 +134,7 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 							}
 						}
 					}
-					groupChannel.queueBind(ok.getQueue(), exGroupName, Integer.toHexString(e.getKey().hashCode()));
+					groupChannel.queueBind(ok.getQueue(), exGroupName, DigestUtils.MD5Hex(e.getKey()));
 					groupChannel.basicConsume(ok.getQueue(), true, new DefaultConsumer(groupChannel){
 						@Override
 						public void handleDelivery(String consumerTag, Envelope envelope,AMQP.BasicProperties properties, byte[] body)throws IOException {
@@ -163,17 +161,12 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 	public void onMessage(BasicProperties properties, byte[] body) {
 		try {
 			Map<String, Object>headers=properties.getHeaders();
-			Object method=headers.get("method");
-			Integer key=null;
-			if(method instanceof Long){
-				key=((Long) method).intValue();
-			}else{
-				key=(Integer)method;
-			}
-			MQInvokeHandler hander=handlerMap.get(key);
+			//headers返回的不是设置时的String对象，而是一个LongStringHelp对象
+			String method=String.valueOf(headers.get("method"));
+			MQInvokeHandler hander=handlerMap.get(method);
 			if(properties.getReplyTo()!=null) {
 				if(hander==null) {
-					log.error("Target method[{}] not exist,Check API version consistency!",key);
+					log.error("Target method[{}] not exist,Check API version consistency!",method);
 					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties,byteNull);
 					return;
 				}
@@ -182,11 +175,11 @@ public class RadaDispatcherServer extends RadaRpcEndpoint{
 					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties,byteNull);
 				}else if(result instanceof DeferredResult) {
 					((DeferredResult<Object>) result).setResultHandler((r)->{
-						try {returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(r));}
+						try {returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress((byte) 0,r));}
 						catch (IOException e) {}
 					});
 				}else {
-					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress(result));
+					returnChannel.basicPublish(exReturnName, properties.getReplyTo(), properties, writeValueAsBytesWithCompress((byte) 0,result));
 				}
 			}else {
 				//不需要返回结果

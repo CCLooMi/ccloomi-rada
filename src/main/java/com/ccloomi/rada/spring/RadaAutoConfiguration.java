@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ConfigurationClassPostProcessor;
 
 import com.ccloomi.rada.endpoint.RadaDispatcherServer;
+import com.ccloomi.rada.endpoint.RadaGenericService;
 import com.ccloomi.rada.endpoint.RadaProxyServer;
 import com.rabbitmq.client.ConnectionFactory;
 
@@ -59,6 +60,9 @@ public class RadaAutoConfiguration {
 						.getBeanDefinition());
 				registry.registerBeanDefinition(RadaProxyServer.class.getName(),
 						BeanDefinitionBuilder.genericBeanDefinition(RadaProxyServer.class)
+						.getBeanDefinition());
+				registry.registerBeanDefinition(RadaGenericService.class.getName(),
+						BeanDefinitionBuilder.genericBeanDefinition(RadaGenericService.class)
 						.getBeanDefinition());
 				registry.registerBeanDefinition(ReferenceAnnotationBeanPostProcessor.class.getName(),
 						BeanDefinitionBuilder.genericBeanDefinition(ReferenceAnnotationBeanPostProcessor.class)
