@@ -103,7 +103,8 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 				}
 				break;
 			}catch (Exception e) {
-				log.error("Service initialization failed, please check whether the service configuration is correct or the network is normal or the guard wall port configuration");
+				log.error("Service initialization failed cause by[{}],\n please check whether the service configuration is correct or the network is normal or the guard wall port configuration",
+						e.getMessage());
 				try {
 					Thread.sleep(1000);
 					log.info("Try reinit service...");
