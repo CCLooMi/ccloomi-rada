@@ -1,13 +1,5 @@
 package com.ccloomi.rada.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.MessageDigest;
-
-import org.xerial.snappy.Snappy;
-
 /**© 2015-2016 CCLooMi.Inc Copyright
  * 类    名：BytesUtil
  * 类 描 述：
@@ -17,25 +9,28 @@ import org.xerial.snappy.Snappy;
  */
 public class BytesUtil {
 	private static final char[][] csm = new char[256][];
-	private static final char[]csm2=new char[256];
+	private static final char[][] CSM = new char[256][];
+	private static final char[]cc=new char[256];
 	private static final int start=0x0100;
 	static {
 		String cs = "0123456789abcdef";
+		String CS = "0123456789ABCDEF";
 		int i,j,n = 0;
 		for (i = 0; i < 16; i++) {
-			for (j = 0; j < 16; j++) {
-				csm[n++] = new char[] {cs.charAt(i),cs.charAt(j)};
+			for (j = 0; j < 16; j++,n++) {
+				csm[n] = new char[] {cs.charAt(i),cs.charAt(j)};
+				CSM[n] = new char[] {CS.charAt(i),CS.charAt(j)};
 			}
 		}
 		for(i=start,j=0;i<start+256;i++) {
-			csm2[j++]|=i;
+			cc[j++]|=i;
 		}
 	}
 
 	public static String bytesToCCString(byte[]bytes) {
 		StringBuilder sb=new StringBuilder();
 		for(int i=0;i<bytes.length;i++) {
-			sb.append(csm2[bytes[i]&0xff]);
+			sb.append(cc[bytes[i]&0xff]);
 		}
 		return sb.toString();
 	}
@@ -53,49 +48,36 @@ public class BytesUtil {
 		}
 		return sb.toString();
 	}
+	public static String bytesToHEXString(byte[] byts) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < byts.length; i++) {
+			sb.append(CSM[byts[i]&0xff]);
+		}
+		return sb.toString();
+	}
 	public static byte[] hexStringToBytes(String hex){
 		int l=(hex.length()+1)/2;
 		byte[]bytes=new byte[l];
 		for(int i=0,j=0;i<hex.length();i++) {
-			if(i%2==0) {
-				switch (hex.charAt(i)) {
-				case '1':bytes[j]|=0x10;break;
-				case '2':bytes[j]|=0x20;break;
-				case '3':bytes[j]|=0x30;break;
-				case '4':bytes[j]|=0x40;break;
-				case '5':bytes[j]|=0x50;break;
-				case '6':bytes[j]|=0x60;break;
-				case '7':bytes[j]|=0x70;break;
-				case '8':bytes[j]|=0x80;break;
-				case '9':bytes[j]|=0x90;break;
-				case 'a':case 'A':bytes[j]|=0xA0;break;
-				case 'b':case 'B':bytes[j]|=0xB0;break;
-				case 'c':case 'C':bytes[j]|=0xC0;break;
-				case 'd':case 'D':bytes[j]|=0xD0;break;
-				case 'e':case 'E':bytes[j]|=0xE0;break;
-				case 'f':case 'F':bytes[j]|=0xF0;break;
-				default:break;
-				}
-			}else {
-				switch (hex.charAt(i)) {
-				case '1':bytes[j++]|=0x01;break;
-				case '2':bytes[j++]|=0x02;break;
-				case '3':bytes[j++]|=0x03;break;
-				case '4':bytes[j++]|=0x04;break;
-				case '5':bytes[j++]|=0x05;break;
-				case '6':bytes[j++]|=0x06;break;
-				case '7':bytes[j++]|=0x07;break;
-				case '8':bytes[j++]|=0x08;break;
-				case '9':bytes[j++]|=0x09;break;
-				case 'a':case 'A':bytes[j++]|=0x0A;break;
-				case 'b':case 'B':bytes[j++]|=0x0B;break;
-				case 'c':case 'C':bytes[j++]|=0x0C;break;
-				case 'd':case 'D':bytes[j++]|=0x0D;break;
-				case 'e':case 'E':bytes[j++]|=0x0E;break;
-				case 'f':case 'F':bytes[j++]|=0x0F;break;
-				default:j++;break;
-				}
+			switch (hex.charAt(i)) {
+			case '1':bytes[j]|=0x10>>((i&1)<<2);break;
+			case '2':bytes[j]|=0x20>>((i&1)<<2);break;
+			case '3':bytes[j]|=0x30>>((i&1)<<2);break;
+			case '4':bytes[j]|=0x40>>((i&1)<<2);break;
+			case '5':bytes[j]|=0x50>>((i&1)<<2);break;
+			case '6':bytes[j]|=0x60>>((i&1)<<2);break;
+			case '7':bytes[j]|=0x70>>((i&1)<<2);break;
+			case '8':bytes[j]|=0x80>>((i&1)<<2);break;
+			case '9':bytes[j]|=0x90>>((i&1)<<2);break;
+			case 'a':case 'A':bytes[j]|=0xA0>>((i&1)<<2);break;
+			case 'b':case 'B':bytes[j]|=0xB0>>((i&1)<<2);break;
+			case 'c':case 'C':bytes[j]|=0xC0>>((i&1)<<2);break;
+			case 'd':case 'D':bytes[j]|=0xD0>>((i&1)<<2);break;
+			case 'e':case 'E':bytes[j]|=0xE0>>((i&1)<<2);break;
+			case 'f':case 'F':bytes[j]|=0xF0>>((i&1)<<2);break;
+			default:break;
 			}
+			j+=i&1;
 		}
 		return bytes;
 	}
@@ -244,121 +226,5 @@ public class BytesUtil {
 	public static byte[] floatToBytes(float a,int length,int endianness){
 		long b=Float.floatToIntBits(a);
 		return longToBytes(b, length,endianness);
-	}
-
-	public final static byte[]writeValueAsBytes(Object obj){
-		ByteArrayOutputStream bos=new ByteArrayOutputStream();
-		ObjectOutputStream oos=null;
-		try{
-			oos=new ObjectOutputStream(bos);
-			oos.writeObject(obj);
-			oos.flush();
-			return bos.toByteArray();
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new byte[0];
-	}
-	public final static void writeValueAsBytes(Object obj,byte[] b, int off,int len){
-		ByteArrayOutputStream bos=new ByteArrayOutputStream();
-		ObjectOutputStream oos=null;
-		try{
-			oos=new ObjectOutputStream(bos);
-			oos.writeObject(obj);
-			oos.flush();
-			System.arraycopy(bos.toByteArray(), 0, b, off, len);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	public final static <E>E readBytesAsObject(byte[]buf){
-		if(buf!=null){
-			return readBytesAsObject(buf, 0, buf.length);
-		}
-		return null;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public final static <E>E readBytesAsObject(byte buf[], int offset, int length){
-		ByteArrayInputStream byteInStream=new ByteArrayInputStream(buf, offset, length);
-		ObjectInputStream ois=null;
-		try{
-			ois=new ObjectInputStream(byteInStream);
-			return (E) ois.readObject();
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-
-	public final static byte[]writeValueAsBytesWithCompress(Object obj){
-		ByteArrayOutputStream bos=new ByteArrayOutputStream();
-		ObjectOutputStream oos=null;
-		try{
-			oos=new ObjectOutputStream(bos);
-			oos.writeObject(obj);
-			oos.flush();
-			return Snappy.compress(bos.toByteArray());
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		return new byte[0];
-	}
-	public final static void writeValueAsBytesWithCompress(Object obj,byte[] b, int off,int len){
-		ByteArrayOutputStream bos=new ByteArrayOutputStream();
-		ObjectOutputStream oos=null;
-		try{
-			oos=new ObjectOutputStream(bos);
-			oos.writeObject(obj);
-			oos.flush();
-			System.arraycopy(Snappy.compress(bos.toByteArray()), 0, b, off, len);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	public final static <E>E readBytesAsObjectWithCompress(byte[]buf){
-		if(buf!=null){
-			return readBytesAsObjectWithCompress(buf, 0, buf.length);
-		}
-		return null;
-	}
-	@SuppressWarnings("unchecked")
-	public final static <E>E readBytesAsObjectWithCompress(byte buf[], int offset, int length){
-		ByteArrayInputStream byteInStream=null;
-		ObjectInputStream ois=null;
-		try{
-	        byte[] result = new byte[Snappy.uncompressedLength(buf,offset,length)];
-	        Snappy.uncompress(buf, offset, length, result, 0);
-			byteInStream=new ByteArrayInputStream(result);
-			ois=new ObjectInputStream(byteInStream);
-			return (E) ois.readObject();
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	public static String digestAsCCString(byte[]b) {
-		MessageDigest sha256;
-		try {
-			sha256 = MessageDigest.getInstance("SHA-256");
-			sha256.update(b);
-			return bytesToCCString(sha256.digest());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-	public static String digestAsHexString(byte[]b) {
-		MessageDigest sha256;
-		try {
-			sha256 = MessageDigest.getInstance("SHA-256");
-			sha256.update(b);
-			return bytesToHexString(sha256.digest());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return "";
 	}
 }

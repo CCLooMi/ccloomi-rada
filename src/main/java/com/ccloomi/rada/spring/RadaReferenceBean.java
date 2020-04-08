@@ -18,6 +18,7 @@ import com.ccloomi.rada.endpoint.RadaProxyServer;
 import com.ccloomi.rada.handler.MQProxyHandler;
 import com.ccloomi.rada.handler.ProxyInvoationHandler;
 import com.ccloomi.rada.util.MethodUtil;
+import com.ccloomi.rada.util.digest.DigestUtils;
 
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -37,6 +38,7 @@ public class RadaReferenceBean<T> {
 	private Logger log=LoggerFactory.getLogger(getClass());
     private static final Class<?>[] constructorParams ={ ProxyInvoationHandler.class };
 	private static final ProxyClassLoad proxyClassLoad=new ProxyClassLoad();
+	private static final String defaultServer=DigestUtils.MD5Hex("default");
 	private RadaReference reference;
 	private Class<?> referenceClass;
 	private ClassLoader classLoader;
@@ -46,9 +48,9 @@ public class RadaReferenceBean<T> {
 		String server=null;
 		Package pkg=referenceClass.getPackage();
 		if(pkg!=null) {
-			server=Integer.toHexString(pkg.getName().hashCode());
+			server=DigestUtils.MD5Hex(pkg.getName());
 		}else {
-			server=Integer.toHexString("default".hashCode());
+			server=defaultServer;
 		}
 		long timeout=reference.timeout();
 		RadaReference rr=referenceClass.getAnnotation(RadaReference.class);
@@ -86,7 +88,7 @@ public class RadaReferenceBean<T> {
 					String methodName=ms[i].getLongName();
 					if(!MethodUtil.isObjMethod(methodName)) {
 						CtClass returnType=ms[i].getReturnType();
-						int method=methodName.hashCode();
+						String method=DigestUtils.MD5Hex(methodName);
 						log.info("mapping [{}] to [{}]",method,methodName);
 						CtMethod m=new CtMethod(returnType, ms[i].getName(), ms[i].getParameterTypes(), newClass);
 						if(returnType==CtClass.booleanType||
@@ -97,17 +99,17 @@ public class RadaReferenceBean<T> {
 								returnType==CtClass.intType||
 								returnType==CtClass.longType||
 								returnType==CtClass.shortType) {
-							m.setBody(String.format("{return (%s)handler.invoke_%s(\"%s\",%dl,true,%d,$args);}",
+							m.setBody(String.format("{return (%s)handler.invoke_%s(\"%s\",%dl,true,\"%s\",$args);}",
 									returnType.getName(),
 									returnType.getName(),
 									server,timeout,method));
 						}else if(returnType==CtClass.voidType) {
-							m.setBody(String.format("{handler.invoke_void(\"%s\",%dl,false,%d,$args);}",
+							m.setBody(String.format("{handler.invoke_void(\"%s\",%dl,false,\"%s\",$args);}",
 									server,timeout,method));
 						}else {
 							boolean sync=true;
 							if(returnType.isArray()) {
-								m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,%d,$args);}",
+								m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,\"%s\",$args);}",
 										returnType.getName(),
 										server,timeout,sync,method));
 							}else {
@@ -115,7 +117,7 @@ public class RadaReferenceBean<T> {
 								if(rtype==Object.class||rtype==DeferredResult.class) {
 									sync=false;
 								}
-								m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,%d,$args);}",
+								m.setBody(String.format("{return (%s)handler.invoke(\"%s\",%dl,%s,\"%s\",$args);}",
 										returnType.getName(),
 										server,timeout,sync,method));
 							}

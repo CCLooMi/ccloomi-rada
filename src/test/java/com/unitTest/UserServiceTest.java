@@ -4,12 +4,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import com.Configure;
 import com.ccloomi.rada.annotation.RadaReference;
+import com.ccloomi.rada.endpoint.RadaGenericService;
 import com.ccloomi.rada.util.LogbackInit;
 import com.ccloomi.rada.util.Paths;
 import com.s.UserService;
@@ -30,10 +33,14 @@ public class UserServiceTest {
 	}
 	@RadaReference
 	private UserService us;
+	@Autowired
+	private RadaGenericService radaGenericService;
 	
 	@Test
 	public void testHello() {
-		System.out.println(us.hello("rada"));
+		@SuppressWarnings("unchecked")
+		DeferredResult<Object>dr=(DeferredResult<Object>) us.hello("rada");
+		dr.setResultHandler(r->System.out.println(r));
 	}
 	@Test
 	public void testAmount() {
@@ -56,5 +63,16 @@ public class UserServiceTest {
 	@Test
 	public void voidTest() {
 		us.notify("Hello world!");
+	}
+	@Test
+	public void genericServiceTest() {
+		//JSON泛化调用测试
+		String className=UserService.class.getName();
+		String methodName="hello";
+		String jsonArgs="['Seemie']";
+		Assert.assertEquals(radaGenericService
+				.invoke(className, methodName, jsonArgs,
+						6000, true,String.class.getName()),
+				"Hello Seemie");
 	}
 }

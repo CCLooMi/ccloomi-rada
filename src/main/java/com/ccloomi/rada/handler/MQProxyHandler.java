@@ -19,15 +19,15 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		this.proxyServer=proxyServer;
 	}
 	@Override
-	public Object invoke(String server,long timeout,boolean sync,int method, Object[] args) {
+	public Object invoke(String server,long timeout,boolean sync,String method, Object[] args) {
 		return proxyServer.sendMessage(server,timeout,sync,method,args);
 	}
 	@Override
-	public void invoke_void(String server,long timeout,boolean sync,int method, Object[] args) {
+	public void invoke_void(String server,long timeout,boolean sync,String method, Object[] args) {
 		proxyServer.sendMessageWithNoReturn(server,timeout,sync,method,args);
 	}
 	@Override
-	public boolean invoke_boolean(String server, long timeout, boolean sync,int method, Object[] args) {
+	public boolean invoke_boolean(String server, long timeout, boolean sync,String method, Object[] args) {
 		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return false;
@@ -40,7 +40,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public byte invoke_byte(String server, long timeout, boolean sync,int method, Object[] args) {
+	public byte invoke_byte(String server, long timeout, boolean sync,String method, Object[] args) {
 		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return 0;
@@ -53,7 +53,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public char invoke_char(String server, long timeout,boolean sync, int method, Object[] args) {
+	public char invoke_char(String server, long timeout,boolean sync, String method, Object[] args) {
 		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return 0;
@@ -66,7 +66,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public double invoke_double(String server, long timeout, boolean sync,int method, Object[] args) {
+	public double invoke_double(String server, long timeout, boolean sync,String method, Object[] args) {
 		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return 0;
@@ -79,7 +79,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public float invoke_float(String server, long timeout,boolean sync, int method, Object[] args) {
+	public float invoke_float(String server, long timeout,boolean sync, String method, Object[] args) {
 		Object o=proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return 0;
@@ -92,7 +92,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public int invoke_int(String server, long timeout, boolean sync,int method, Object[] args) {
+	public int invoke_int(String server, long timeout, boolean sync,String method, Object[] args) {
 		Object o =proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return 0;
@@ -105,7 +105,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public long invoke_long(String server, long timeout,boolean sync, int method, Object[] args) {
+	public long invoke_long(String server, long timeout,boolean sync, String method, Object[] args) {
 		Object o =proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return 0;
@@ -118,7 +118,7 @@ public class MQProxyHandler implements ProxyInvoationHandler{
 		}
 	}
 	@Override
-	public short invoke_short(String server, long timeout, boolean sync,int method, Object[] args) {
+	public short invoke_short(String server, long timeout, boolean sync,String method, Object[] args) {
 		Object o = proxyServer.sendMessage(server,timeout,sync,method,args);
 		if(o==null) {
 			return -1;

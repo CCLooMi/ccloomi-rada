@@ -1,5 +1,6 @@
 .DS_Store
 .classpath
+.log
 rebel.xml
 .gradle/
 .settings/
