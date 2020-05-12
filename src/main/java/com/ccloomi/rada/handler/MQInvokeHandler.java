@@ -23,13 +23,13 @@ public class MQInvokeHandler {
 		this.setTarget(target);
 	}
 	public Object execute(Object[]args) throws Exception{
-		if(types.length>0) {
+		if(types!=null) {
 			return method.invoke(target, args);
 		}
 		return method.invoke(target, new Object[0]);
 	}
 	public Object execute(ObjectMapper om,Object[]args) throws Exception{
-		if(types.length>0) {
+		if(types!=null) {
 			for(int i=0;i<args.length&&i<types.length;i++) {
 				args[i]=om.convertValue(args[i], types[i]);
 			}
