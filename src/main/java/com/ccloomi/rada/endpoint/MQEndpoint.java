@@ -20,7 +20,7 @@ import com.rabbitmq.client.ConnectionFactory;
  * 邮    箱：chenios@foxmail.com
  * 日    期：2017年2月25日-下午4:43:28
  */
-public abstract class MQEndpoint {
+public abstract class MQEndpoint extends Thread{
 	@Autowired
 	protected ConnectionFactory connectionFactory;
 	protected String routingKey;

@@ -118,8 +118,12 @@ public abstract class RadaRpcEndpoint extends MQEndpoint implements Initializing
 	public abstract void startup();
 	public abstract void onMessage(BasicProperties properties,byte[] body);
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void run() {
 		this.startup();
+	}
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		this.start();
 	}
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

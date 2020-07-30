@@ -104,20 +104,28 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 	public void sendMessageWithNoReturn(String server,long timeout,boolean sync,String method,Object[] args){
 		Map<String, Object>headers=new HashMap<>(2);
 		headers.put("method", method);
-		try {
-			groupChannel.basicPublish(exGroupName, server,
-					new BasicProperties().builder().headers(headers).build(),
-					writeValueAsBytesWithCompress((byte) 0,args));
-		}catch (Exception e) {
+		while(true) {
 			if(groupChannel==null) {
-				log.error("Message sending failed, please check if the service is started!", e);
+				log.error("Waiting for service starting...");
+				try {Thread.sleep(500);}
+				catch (InterruptedException e) {}
+				if(groupChannel!=null) {
+					log.error("Service start success");
+				}
 			}else {
-				log.error("Message sending failed", e);
+				try {
+					groupChannel.basicPublish(exGroupName, server,
+							new BasicProperties().builder().headers(headers).build(),
+							writeValueAsBytesWithCompress((byte) 0,args));
+				}catch (Exception e) {
+					log.error("Message sending failed", e);
+				}
+				break;
 			}
 		}
 	}
 	public Object sendMessage(String server,long timeout,boolean sync,String method,Object[] args){
-		DeferredResult<Object> deferredResult=new DeferredResult<>(timeout);
+		DeferredResult<Object> deferredResult;
 		String msid=randomId();
 		Map<String, Object>headers=new HashMap<>(2);
 		headers.put("method", method);
@@ -127,20 +135,29 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 				.messageId(msid)
 				.headers(headers)
 				.build();
-		try {
-			handlerCache.put(msid, deferredResult);
-			groupChannel.basicPublish(exGroupName, server, bp, writeValueAsBytesWithCompress((byte) 0,args));
-			deferredResult.onTimeout(()->{
-				log.info("Asynchronous call timeout (is the micro service started?)", new TaskTimeoutException());
-				deferredResult.setResult(timeoutMsg);
-			});
-		} catch (Exception e) {
+		while(true) {
 			if(groupChannel==null) {
-				log.error("Message sending failed, please check if the service is started!", e);
+				log.error("Waiting for service starting...");
+				try {Thread.sleep(500);}
+				catch (InterruptedException e) {}
+				if(groupChannel!=null) {
+					log.error("Service start success");
+				}
 			}else {
-				log.error("Message sending failed", e);
+				deferredResult=new DeferredResult<>(timeout);
+				try {
+					handlerCache.put(msid, deferredResult);
+					groupChannel.basicPublish(exGroupName, server, bp, writeValueAsBytesWithCompress((byte) 0,args));
+					deferredResult.onTimeout(()->{
+						log.info("Asynchronous call timeout (is the micro service started?)", new TaskTimeoutException());
+						deferredResult.setResult(timeoutMsg);
+					});
+				} catch (Exception e) {
+					log.error("Message sending failed", e);
+					deferredResult.setResult(serverErrorMsg);
+				}
+				break;
 			}
-			deferredResult.setResult(serverErrorMsg);
 		}
 		if(!sync) {
 			return deferredResult;
@@ -166,20 +183,28 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 	public void sendJsonMessageWithNoReturn(String server,long timeout,boolean sync,String method,String jsonArgs){
 		Map<String, Object>headers=new HashMap<>(2);
 		headers.put("method", method);
-		try {
-			groupChannel.basicPublish(exGroupName, server,
-					new BasicProperties().builder().headers(headers).build(),
-					writeValueAsBytesWithCompress((byte) 1,jsonArgs));
-		}catch (Exception e) {
+		while(true) {
 			if(groupChannel==null) {
-				log.error("Message sending failed, please check if the service is started!", e);
+				log.error("Waiting for service starting...");
+				try {Thread.sleep(500);}
+				catch (InterruptedException e) {}
+				if(groupChannel!=null) {
+					log.error("Service start success");
+				}
 			}else {
-				log.error("Message sending failed", e);
+				try {
+					groupChannel.basicPublish(exGroupName, server,
+							new BasicProperties().builder().headers(headers).build(),
+							writeValueAsBytesWithCompress((byte) 1,jsonArgs));
+				}catch (Exception e) {
+					log.error("Message sending failed", e);
+				}
+				break;
 			}
 		}
 	}
 	public Object sendJsonMessage(String server,long timeout,boolean sync,String method,String jsonArgs){
-		DeferredResult<Object> deferredResult=new DeferredResult<>(timeout);
+		DeferredResult<Object> deferredResult;
 		String msid=randomId();
 		Map<String, Object>headers=new HashMap<>(2);
 		headers.put("method", method);
@@ -189,20 +214,29 @@ public class RadaProxyServer extends RadaRpcEndpoint implements ExceptionErrors{
 				.messageId(msid)
 				.headers(headers)
 				.build();
-		try {
-			handlerCache.put(msid, deferredResult);
-			groupChannel.basicPublish(exGroupName, server, bp, writeValueAsBytesWithCompress((byte) 1,jsonArgs));
-			deferredResult.onTimeout(()->{
-				log.info("Asynchronous call timeout (is the micro service started?)", new TaskTimeoutException());
-				deferredResult.setResult(timeoutMsg);
-			});
-		} catch (Exception e) {
+		while(true) {
 			if(groupChannel==null) {
-				log.error("Message sending failed, please check if the service is started!", e);
+				log.error("Waiting for service starting...");
+				try {Thread.sleep(500);}
+				catch (InterruptedException e) {}
+				if(groupChannel!=null) {
+					log.error("Service start success");
+				}
 			}else {
-				log.error("Message sending failed", e);
+				deferredResult=new DeferredResult<>(timeout);
+				try {
+					handlerCache.put(msid, deferredResult);
+					groupChannel.basicPublish(exGroupName, server, bp, writeValueAsBytesWithCompress((byte) 1,jsonArgs));
+					deferredResult.onTimeout(()->{
+						log.info("Asynchronous call timeout (is the micro service started?)", new TaskTimeoutException());
+						deferredResult.setResult(timeoutMsg);
+					});
+				} catch (Exception e) {
+					log.error("Message sending failed", e);
+					deferredResult.setResult(serverErrorMsg);
+				}
+				break;
 			}
-			deferredResult.setResult(serverErrorMsg);
 		}
 		if(!sync) {
 			return deferredResult;
