@@ -1,0 +1,6 @@
+rootProject.name = 'ccloomi-rada'
+include 'rada-springboot','rada-core','rada-wimvc'
+
+includeFlat 'WiMVC'
+//project(':WiMVC').projectDir = file('E:/workspace/git/WiMVC')
+include ':WiMVC:wimvc-core'

@@ -1,0 +1,43 @@
+plugins {
+	id 'java-library'
+	id 'java'
+	id 'maven'
+}
+def artifactId='rada-springboot'
+dependencies {
+        def logbackVersion      = "1.2.3"
+        def slf4jVersion        = "1.7.26"
+		def springBootVersion	= "2.4.2"
+    compile (
+		project(":rada-core"),
+		"org.springframework.boot:spring-boot-starter-web:$springBootVersion",
+		"org.springframework.boot:spring-boot-configuration-processor:$springBootVersion",
+		"ch.qos.logback:logback-access:$logbackVersion",
+		"ch.qos.logback:logback-classic:$logbackVersion",
+		"ch.qos.logback:logback-core:$logbackVersion",
+		"org.slf4j:slf4j-api:$slf4jVersion",
+    fileTree(dir: 'libs', include: '*.jar'))
+    testCompile("junit:junit:4.+","org.mockito:mockito-core:2.24.5")
+}
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+artifacts {
+	archives sourcesJar
+}
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+}
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: "$mvnRelease") {
+				authentication(userName: "$userName", password: "$password")
+			}
+			pom.version = "$project.version"
+			pom.artifactId = "$artifactId"
+			pom.groupId = "$project.group"
+		}
+	}
+}

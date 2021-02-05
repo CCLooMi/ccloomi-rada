@@ -1,0 +1,42 @@
+plugins {
+	id 'java-library'
+	id 'java'
+	id 'maven'
+}
+def artifactId='rada-wimvc'
+dependencies {
+        def logbackVersion      = "1.2.3"
+        def slf4jVersion        = "1.7.26"
+    compile (
+		project(":rada-core"),
+		project(":WiMVC:wimvc-core"),
+		"ch.qos.logback:logback-access:$logbackVersion",
+		"ch.qos.logback:logback-classic:$logbackVersion",
+		"ch.qos.logback:logback-core:$logbackVersion",
+		"org.slf4j:slf4j-api:$slf4jVersion",
+    fileTree(dir: 'libs', include: '*.jar'))
+    testCompile("junit:junit:4.+","org.mockito:mockito-core:2.24.5")
+}
+//打包源代码
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+artifacts {
+	archives sourcesJar
+}
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+}
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: "$mvnRelease") {
+				authentication(userName: "$userName", password: "$password")
+			}
+			pom.version = "$project.version"
+			pom.artifactId = "$artifactId"
+			pom.groupId = "$project.group"
+		}
+	}
+}

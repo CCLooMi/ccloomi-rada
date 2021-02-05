@@ -1,0 +1,63 @@
+plugins {
+	id 'java-library'
+	id 'java'
+	id 'maven'
+}
+def artifactId='rada-core'
+dependencies {
+        def jacksonVersion		= "2.9.8"
+		def logbackVersion		= "1.2.3"
+		def slf4jVersion		= "1.7.26"
+		def springVersion		= "5.3.1"
+    compile (
+    	"org.rocksdb:rocksdbjni:5.17.2",
+		"org.antlr:antlr4:4.7.2",
+		"org.javassist:javassist:3.24.1-GA",
+		"org.aspectj:aspectjrt:1.9.1",
+		"org.aspectj:aspectjweaver:1.9.1",
+		"org.eclipse.jdt:ecj:3.16.0",
+		"net.java.dev.jna:jna:5.2.0",
+		"net.java.dev.jna:jna-platform:5.2.0",
+		"com.rabbitmq:amqp-client:5.5.3",
+		"com.google.guava:guava:27.0.1-jre",
+		"ch.qos.logback:logback-access:$logbackVersion",
+		"ch.qos.logback:logback-classic:$logbackVersion",
+		"ch.qos.logback:logback-core:$logbackVersion",
+		"org.bouncycastle:bcpkix-jdk15on:1.65",
+		"org.slf4j:slf4j-api:$slf4jVersion",
+		"org.springframework:spring-context:$springVersion",
+		"com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+		"com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion",
+		"com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+		"org.xerial.snappy:snappy-java:1.1.7.2",
+		fileTree(dir: 'libs', include: '*.jar')
+	)
+    testCompile(
+		"junit:junit:4.+",
+		"org.mockito:mockito-core:2.24.5",
+		"org.springframework:spring-test:$springVersion"
+	)
+}
+//打包源代码
+task sourcesJar(type: Jar, dependsOn: classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+artifacts {
+	archives sourcesJar
+}
+tasks.withType(JavaCompile) {
+	options.encoding = "UTF-8"
+}
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			repository(url: "$mvnRelease") {
+				authentication(userName: "$userName", password: "$password")
+			}
+			pom.version = "$project.version"
+			pom.artifactId = "$artifactId"
+			pom.groupId = "$project.group"
+		}
+	}
+}
